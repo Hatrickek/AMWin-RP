@@ -7,7 +7,7 @@ using DiscordRPC;
 
 internal class AppleMusicDiscordClient {
     public enum RPSubtitleDisplayOptions {
-        ArtistOnly = 0, ArtistAlbum = 1, AlbumOnly = 2
+        ArtistOnly = 0, ArtistAlbum = 1, AlbumOnly = 2, ArtistSong = 3,
     }
 
     public static RPSubtitleDisplayOptions SubtitleOptionFromIndex(int i) {
@@ -65,42 +65,48 @@ internal class AppleMusicDiscordClient {
             return;
         }
 
-        var songName = TrimString(amInfo.SongName);
-        var songSubtitle = amInfo.SongSubTitle.Length > maxStringLength ? amInfo.SongSubTitle.Replace(amInfo.SongArtist, GetTrimmedArtistList(amInfo)) : amInfo.SongSubTitle;
-        var songArtist = amInfo.SongArtist.Length > maxStringLength ? GetTrimmedArtistList(amInfo) : amInfo.SongArtist;
-        var songAlbum = TrimString(amInfo.SongAlbum);
+		var songName = TrimString(amInfo.SongName);
+		var songSubtitleSong = amInfo.SongArtist + " - " + amInfo.SongName;
+		var songSubtitleAlbum = amInfo.SongSubTitle.Length > maxStringLength
+			? amInfo.SongSubTitle.Replace(amInfo.SongArtist, GetTrimmedArtistList(amInfo)) : amInfo.SongSubTitle;
+		var songArtist = amInfo.SongArtist.Length > maxStringLength
+			? GetTrimmedArtistList(amInfo) : amInfo.SongArtist;
+		var songAlbum = TrimString(amInfo.SongAlbum);
 
-        // hack to show 1-character song names
-        while (songName.Length < 2) {
-            songName += "\u0000";
-        }
+		// hack to show 1-character song names
+		while (songName.Length < 2) {
+			songName += "\u0000";
+		}
 
-        // pick the subtitle format to show
-        var subtitle = "";
-        switch (subtitleOptions) {
-            case RPSubtitleDisplayOptions.ArtistAlbum:
-                subtitle = songSubtitle;
-                break;
-            case RPSubtitleDisplayOptions.ArtistOnly:
-                subtitle = songArtist;
-                break;
-            case RPSubtitleDisplayOptions.AlbumOnly:
-                subtitle = songAlbum;
-                break;
-        }
+		// pick the subtitle format to show
+		var subtitle = "";
+		switch (subtitleOptions) {
+			case RPSubtitleDisplayOptions.ArtistAlbum:
+				subtitle = songSubtitleAlbum;
+				break;
+			case RPSubtitleDisplayOptions.ArtistOnly:
+				subtitle = songArtist;
+				break;
+			case RPSubtitleDisplayOptions.AlbumOnly:
+				subtitle = songAlbum;
+				break;
+			case RPSubtitleDisplayOptions.ArtistSong:
+				subtitle = songSubtitleSong;
+				break;
+		}
 
-        var statusDisplay = StatusDisplayType.Details;
-        switch (previewOptions) {
-            case RPPreviewDisplayOptions.Subtitle:
-                statusDisplay = StatusDisplayType.State;
-                break;
-            case RPPreviewDisplayOptions.AppleMusic:
-                statusDisplay = StatusDisplayType.Name;
-                break;
-            case RPPreviewDisplayOptions.SongName:
-                statusDisplay = StatusDisplayType.Details;
-                break;
-        }
+		var statusDisplay = StatusDisplayType.Details;
+		switch (previewOptions) {
+			case RPPreviewDisplayOptions.Subtitle:
+				statusDisplay = StatusDisplayType.State;
+				break;
+			case RPPreviewDisplayOptions.AppleMusic:
+				statusDisplay = StatusDisplayType.Name;
+				break;
+			case RPPreviewDisplayOptions.SongName:
+				statusDisplay = StatusDisplayType.Details;
+				break;
+		}
 
         if (ASCIIEncoding.Unicode.GetByteCount(subtitle) > 128) {
             // TODO fix this to account for multibyte unicode characters

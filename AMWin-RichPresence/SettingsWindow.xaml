@@ -54,6 +54,7 @@
                                 <ComboBoxItem>Artist only</ComboBoxItem>
                                 <ComboBoxItem>Artist and album</ComboBoxItem>
                                 <ComboBoxItem>Album only</ComboBoxItem>
+                                <ComboBoxItem>Artist and song</ComboBoxItem>
                             </ComboBox>
                         </StackPanel>
 
